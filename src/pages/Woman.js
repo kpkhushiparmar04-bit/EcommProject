@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Heart } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import { useWishlist } from "../context/WishlistContext";
 
 export default function Women() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
   useEffect(() => {
     axios
@@ -48,53 +52,82 @@ export default function Women() {
       </h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {womenProducts.map((item) => (
-          <div
-            key={item.id}
-            className="border rounded-lg shadow-sm hover:shadow-lg transition bg-white"
-          >
-            <img
-              src={item.productimage || "https://via.placeholder.com/300"}
-              alt={item.productname}
-              className="w-full h-56 object-cover rounded-t-lg"
-            />
+        {womenProducts.map((item) => {
+          const wished = isInWishlist(item.id);
 
-            <div className="p-4">
-              <h3 className="text-lg font-semibold mb-1">
-                {item.productname}
-              </h3>
-
-              <p className="text-sm text-gray-500 mb-1">
-                ⭐ {item.rating || "No rating"}
-              </p>
-
-              <p className="text-green-600 font-bold text-lg mb-2">
-                ₹{item.price}
-              </p>
-
-              <p className="text-sm text-gray-600 mb-4">
-                {item.productdescription
-                  ? item.productdescription.substring(0, 60)
-                  : "No description available"}
-              </p>
-
-              {/* ✅ ADD TO CART FIXED */}
+          return (
+            <div
+              key={item.id}
+              className="border rounded-lg shadow-sm hover:shadow-lg transition bg-white relative"
+            >
+              {/* ❤️ Wishlist */}
               <button
                 onClick={() =>
-                  addToCart({
-                    id: item.id,
-                    name: item.productname,
-                    price: Number(item.price),
-                    image: item.productimage,
-                  })
+                  wished
+                    ? removeFromWishlist(item.id)
+                    : addToWishlist({
+                        id: item.id,
+                        name: item.productname,
+                        price: Number(item.price),
+                        image: item.productimage,
+                      })
                 }
-                className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
+                className={`absolute top-2 right-2 p-2 rounded-full transition ${
+                  wished
+                    ? "bg-red-100 text-red-500"
+                    : "bg-white text-gray-400 hover:text-red-400"
+                }`}
               >
-                Add to Cart
+                <Heart
+                  className={`w-5 h-5 transition ${
+                    wished ? "fill-red-500" : "fill-transparent"
+                  }`}
+                />
               </button>
+
+              <img
+                src={item.productimage || "https://via.placeholder.com/300"}
+                alt={item.productname}
+                className="w-full h-56 object-cover rounded-t-lg"
+              />
+
+              <div className="p-4">
+                <h3 className="text-lg font-semibold mb-1">
+                  {item.productname}
+                </h3>
+
+                <p className="text-sm text-gray-500 mb-1">
+                  ⭐ {item.rating || "No rating"}
+                </p>
+
+                <p className="text-green-600 font-bold text-lg mb-2">
+                  ₹{item.price}
+                </p>
+
+                <p className="text-sm text-gray-600 mb-4">
+                  {item.productdescription
+                    ? item.productdescription.substring(0, 60)
+                    : "No description available"}
+                </p>
+
+                {/* ✅ ADD TO CART BUTTON (BLUE) */}
+                <button
+                  onClick={() =>
+                    addToCart({
+                      id: item.id,
+                      name: item.productname,
+                      price: Number(item.price),
+                      image: item.productimage,
+                    })
+                  }
+                  className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+                >
+                  Add to Cart
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
