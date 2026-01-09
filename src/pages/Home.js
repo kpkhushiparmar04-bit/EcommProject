@@ -1,26 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 export default function Home() {
   /* ================= HERO SLIDER ================= */
   const sliderImages = ["woman.png", "boyss.png", "kids.png"];
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % sliderImages.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide(
-      (prev) => (prev - 1 + sliderImages.length) % sliderImages.length
-    );
-  };
-
   useEffect(() => {
-    const interval = setInterval(nextSlide, 3000);
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % sliderImages.length);
+    }, 3000);
     return () => clearInterval(interval);
   }, []);
 
+  /* ================= DATA ================= */
   const categories = [
     {
       name: "MEN COLLECTION",
@@ -39,69 +33,99 @@ export default function Home() {
     },
   ];
 
+  const featuredProducts = [
+    {
+      id: 1,
+      name: "Stylish Shirt",
+      price: "₹999",
+      img: "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcS6z4Pw-iN_z7NSx-t3aUjuXSARAnCDJjkuvA87B020tfbqWEi22ma0hQVDFI1_sqZRu38otkLGiNhaAS4E9rLYOkHz6lEMSM6LZRIaQd2ugcuF7vVYz97GAw&usqp=CAc",
+    },
+    {
+      id: 2,
+      name: "Women Dress",
+      price: "₹1499",
+      img: "https://m.media-amazon.com/images/I/71eUwDk8z+L._SY879_.jpg",
+    },
+    {
+      id: 3,
+      name: "Kids Wear",
+      price: "₹799",
+      img: "https://m.media-amazon.com/images/I/61H5FzCqJkL._SX679_.jpg",
+    },
+  ];
+
+  /* ================= FADE UP VARIANT ================= */
+  const fadeUp = {
+    hidden: { opacity: 0, y: 40 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
+  };
+
   return (
     <div className="w-full">
-      {/* ================= HERO SLIDER ================= */}
-      <div className="relative w-full overflow-hidden h-[45vh] sm:h-[60vh] md:h-[70vh]">
+
+      {/* ================= HERO SLIDER (FADE + ZOOM) ================= */}
+      <div className="relative w-full h-[45vh] sm:h-[60vh] md:h-[75vh] overflow-hidden">
         {sliderImages.map((img, index) => (
-          <img
+          <motion.img
             key={index}
             src={img}
-            alt={`slide-${index}`}
-            className={`absolute w-full h-full object-cover transition-opacity duration-1000 ${
-              index === currentSlide ? "opacity-100" : "opacity-0"
-            }`}
+            alt="slider"
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{
+              opacity: index === currentSlide ? 1 : 0,
+              scale: index === currentSlide ? 1 : 1.1,
+            }}
+            transition={{ duration: 1 }}
+            className="absolute w-full h-full object-cover"
           />
         ))}
-
-        <button
-          onClick={prevSlide}
-          className="absolute top-1/2 left-2 sm:left-5 -translate-y-1/2 bg-black/50 text-white px-3 py-1 sm:px-4 sm:py-2 rounded hover:bg-black/70 transition"
-        >
-          ❮
-        </button>
-
-        <button
-          onClick={nextSlide}
-          className="absolute top-1/2 right-2 sm:right-5 -translate-y-1/2 bg-black/50 text-white px-3 py-1 sm:px-4 sm:py-2 rounded hover:bg-black/70 transition"
-        >
-          ❯
-        </button>
       </div>
 
-      {/* ================= TEXT SECTION ================= */}
-      <div className="w-full py-10 px-4 text-center bg-gray-50">
-        <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-3">
+      {/* ================= INTRO TEXT ================= */}
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        className="text-center py-12 px-4 bg-gray-50"
+      >
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
           Discover Your Perfect Style
         </h2>
-        <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
+        <p className="text-gray-600 max-w-2xl mx-auto">
           Trendy fashion for Men, Women & Kids. Premium quality outfits designed
           for comfort, style and confidence.
         </p>
-      </div>
+      </motion.div>
 
-      {/* ================= CATEGORY BANNERS ================= */}
-      <div className="px-4 py-10">
-        <div className="flex flex-col sm:flex-row sm:overflow-x-auto sm:space-x-6 space-y-6 sm:space-y-0">
+      {/* ================= CATEGORY SECTION ================= */}
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        className="px-6 py-12"
+      >
+        <div className="grid md:grid-cols-3 gap-8">
           {categories.map((cat, index) => (
             <div
               key={index}
-              className="relative w-full sm:min-w-[280px] md:min-w-[350px] group overflow-hidden rounded-xl shadow-lg"
+              className="relative group rounded-xl overflow-hidden shadow-lg"
             >
               <img
                 src={cat.img}
                 alt={cat.name}
-                className="w-full h-[40vh] sm:h-[50vh] md:h-[60vh] object-cover transition-transform duration-500 group-hover:scale-110"
+                className="w-full h-[55vh] object-cover transition-transform duration-500 group-hover:scale-110"
               />
-
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-black/40 flex flex-col justify-end items-center text-white p-4 sm:p-6 transition-all duration-500 group-hover:bg-black/60">
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 text-center">
-                  {cat.name}
-                </h1>
+              <div className="absolute inset-0 bg-black/40 flex flex-col justify-end items-center p-6 text-white">
+                <h3 className="text-2xl font-bold mb-3">{cat.name}</h3>
                 <Link
                   to={cat.link}
-                  className="bg-blue-600 px-4 py-2 text-sm sm:text-base font-semibold rounded-md hover:bg-blue-700 transition"
+                  className="bg-blue-600 px-5 py-2 rounded hover:bg-blue-700 transition"
                 >
                   Shop Now
                 </Link>
@@ -109,7 +133,79 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </div>
+      </motion.div>
+
+      {/* ================= FEATURED PRODUCTS ================= */}
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        className="bg-gray-50 py-14 px-6"
+      >
+        <h2 className="text-3xl font-bold text-center mb-10">
+          Featured Products
+        </h2>
+
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {featuredProducts.map((item) => (
+            <div
+              key={item.id}
+              className="bg-white rounded-xl shadow-md overflow-hidden"
+            >
+              <img
+                src={item.img}
+                alt={item.name}
+                className="w-full h-72 object-cover"
+              />
+              <div className="p-4 text-center">
+                <h3 className="font-semibold text-lg">{item.name}</h3>
+                <p className="text-blue-600 font-bold mt-2">{item.price}</p>
+                <button className="mt-4 bg-black text-white px-5 py-2 rounded hover:bg-gray-800 transition">
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* ================= WHY CHOOSE US ================= */}
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        className="py-14 px-6"
+      >
+        <h2 className="text-3xl font-bold text-center mb-10">
+          Why Choose Us
+        </h2>
+
+        <div className="grid md:grid-cols-4 gap-8 text-center max-w-6xl mx-auto">
+          <div>
+            🚚
+            <h4 className="font-semibold mt-2">Free Delivery</h4>
+            <p className="text-gray-600 text-sm">On all orders</p>
+          </div>
+          <div>
+            💳
+            <h4 className="font-semibold mt-2">Secure Payment</h4>
+            <p className="text-gray-600 text-sm">100% safe</p>
+          </div>
+          <div>
+            🔄
+            <h4 className="font-semibold mt-2">Easy Returns</h4>
+            <p className="text-gray-600 text-sm">7 days return</p>
+          </div>
+          <div>
+            📞
+            <h4 className="font-semibold mt-2">24/7 Support</h4>
+            <p className="text-gray-600 text-sm">We are here</p>
+          </div>
+        </div>
+      </motion.div>
+
     </div>
   );
 }

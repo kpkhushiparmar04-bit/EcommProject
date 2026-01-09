@@ -1,112 +1,77 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../Firebase";
 
-export default function Register() {
-  const [name, setName] = useState("");
+export default function Registration() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (password !== confirmPassword) {
-      alert("Passwords do not match");
+    if (password !== confirm) {
+      setError("Passwords do not match");
       return;
     }
 
-    console.log("Register:", { name, email, password });
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      navigate("/login");
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="text-center text-3xl font-bold text-gray-900">
-          Create your account
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-8 rounded shadow w-96"
+      >
+        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
+
+        <input
+          type="email"
+          placeholder="Email"
+          required
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-3 border rounded mb-4"
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          required
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full p-3 border rounded mb-4"
+        />
+
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          required
+          onChange={(e) => setConfirm(e.target.value)}
+          className="w-full p-3 border rounded mb-4"
+        />
+
+        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+
+        <button className="w-full bg-indigo-600 text-white py-3 rounded">
+          Register
+        </button>
+
+        <p className="text-center mt-4 text-sm">
           Already have an account?{" "}
-          <Link
-            to="/login"
-            className="font-medium text-indigo-600 hover:text-indigo-500"
-          >
-            Sign in
+          <Link to="/login" className="text-indigo-600">
+            Login
           </Link>
         </p>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-lg sm:rounded-lg sm:px-10 border">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Full Name
-              </label>
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="mt-1 block w-full px-4 py-3 border rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Rahul Parmar"
-              />
-            </div>
-
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-4 py-3 border rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="you@example.com"
-              />
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-4 py-3 border rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="••••••••"
-              />
-            </div>
-
-            {/* Confirm Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="mt-1 block w-full px-4 py-3 border rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="••••••••"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-3 rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition"
-            >
-              Create Account
-            </button>
-          </form>
-        </div>
-      </div>
+      </form>
     </div>
   );
 }

@@ -17,6 +17,7 @@ export default function Men() {
       .then((res) => {
         setProducts(Array.isArray(res.data) ? res.data : []);
         setLoading(false);
+
       })
       .catch((err) => {
         console.error("API Error:", err);
