@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Heart } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 
@@ -18,82 +19,96 @@ export default function Product() {
         setProducts(Array.isArray(res.data) ? res.data : []);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error("API Error:", err);
-        setLoading(false);
-      });
+      .catch(() => setLoading(false));
   }, []);
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <h2 className="text-xl font-semibold">Loading...</h2>
+      <div className="flex items-center justify-center min-h-screen">
+        <h2 className="text-lg font-semibold animate-pulse">
+          Loading products...
+        </h2>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">Products</h1>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
+      <h1 className="text-3xl md:text-4xl font-bold text-center mb-12">
+        Fashion Products
+      </h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
         {products.map((item) => {
           const wished = isInWishlist(item.id);
 
           return (
             <div
               key={item.id}
-              className="border rounded-lg shadow-sm hover:shadow-lg transition bg-white relative"
+              className="group bg-white rounded-2xl border shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden"
             >
-              {/* ❤️ Wishlist */}
-              <button
-                onClick={() =>
-                  wished
-                    ? removeFromWishlist(item.id)
-                    : addToWishlist({
-                        id: item.id,
-                        name: item.productname,
-                        price: Number(item.price),
-                        image: item.productimage,
-                      })
-                }
-                className={`absolute top-2 right-2 p-2 rounded-full transition ${
-                  wished
-                    ? "bg-red-100 text-red-500"
-                    : "bg-white text-gray-400 hover:text-red-400"
-                }`}
-              >
-                <Heart
-                  className={`w-5 h-5 transition ${
-                    wished ? "fill-red-500" : "fill-transparent"
+              {/* IMAGE */}
+              <div className="relative overflow-hidden">
+                {/* Wishlist */}
+                <button
+                  onClick={() =>
+                    wished
+                      ? removeFromWishlist(item.id)
+                      : addToWishlist({
+                          id: item.id,
+                          name: item.productname,
+                          price: Number(item.price),
+                          image: item.productimage,
+                        })
+                  }
+                  className={`absolute top-3 right-3 z-20 p-2 rounded-full transition ${
+                    wished
+                      ? "bg-red-100 text-red-500"
+                      : "bg-white/80 text-gray-500 hover:text-red-500 hover:scale-110"
                   }`}
-                />
-              </button>
+                >
+                  <Heart
+                    className={`w-5 h-5 ${
+                      wished ? "fill-red-500" : "fill-transparent"
+                    }`}
+                  />
+                </button>
 
-              <img
-                src={item.productimage || "https://via.placeholder.com/300"}
-                alt={item.productname}
-                className="w-full h-56 object-cover rounded-t-lg"
-              />
+                <Link to={`/product/${item.id}`}>
+                  <img
+                    src={item.productimage || "https://via.placeholder.com/300"}
+                    alt={item.productname}
+                    className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                </Link>
 
-              <div className="p-4">
-                <h3 className="text-lg font-semibold mb-1">
-                  {item.productname}
-                </h3>
+                {/* Dark Overlay */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                  <Link
+                    to={`/product/${item.id}`}
+                    className="bg-white text-black px-5 py-2 rounded-full text-sm font-semibold hover:bg-blue-600 hover:text-white transition"
+                  >
+                    View Details
+                  </Link>
+                </div>
+              </div>
 
-                <p className="text-sm text-gray-500 mb-1">
-                  ⭐ {item.rating || "No rating"}
+              {/* CONTENT */}
+              <div className="p-5 space-y-2">
+                <Link to={`/product/${item.id}`}>
+                  <h3 className="text-lg font-semibold hover:text-blue-600 transition line-clamp-1">
+                    {item.productname}
+                  </h3>
+                </Link>
+
+                <p className="text-sm text-gray-500">
+                  ⭐ {item.rating || "4.5"} Rating
                 </p>
 
-                <p className="text-green-600 font-bold text-lg mb-2">
+                <p className="text-blue-600 text-xl font-bold">
                   ₹{item.price}
                 </p>
 
-                <p className="text-sm text-gray-600 mb-4">
-                  {item.productdescription || "No description"}
-                </p>
-
-                {/* ✅ ADD TO CART BUTTON (BLUE) */}
                 <button
                   onClick={() =>
                     addToCart({
@@ -103,7 +118,7 @@ export default function Product() {
                       image: item.productimage,
                     })
                   }
-                  className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+                  className="w-full mt-4 bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 transition"
                 >
                   Add to Cart
                 </button>

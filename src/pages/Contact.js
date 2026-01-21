@@ -65,13 +65,7 @@ export default function Contact() {
                 </div>
               </div>
 
-              {/* Quick Response Promise */}
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-8 text-center">
-                <p className="text-3xl font-bold text-blue-700">Average Reply Time</p>
-                <p className="text-5xl font-black text-blue-600 mt-3">7 minutes</p>
-                <p className="text-gray-600 mt-2">Yes, we’re really that fast</p>
-              </div>
-            </div>
+            </div>  
 
             {/* Right: Contact Form */}
             <div className="bg-gray-50 rounded-3xl p-8 lg:p-12 shadow-xl">

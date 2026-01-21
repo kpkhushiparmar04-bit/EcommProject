@@ -1,30 +1,55 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Search, ShoppingCart, ChevronDown, Heart } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Search,
+  ShoppingCart,
+  ChevronDown,
+  Heart
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "../Firebase";
+
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
-import { motion, AnimatePresence } from "framer-motion";
+
+// ✅ LOGO IMPORT
+import logo from "../logo.png";
+
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [productOpen, setProductOpen] = useState(false);
   const [search, setSearch] = useState("");
+
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
+  // 🔐 Firebase user
+  const [user, setUser] = useState(null);
+
+  const navigate = useNavigate();
   const { cart } = useCart();
   const { wishlist } = useWishlist();
 
   const cartCount = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
   const wishlistCount = wishlist.length;
 
-  /* ===== SCROLL ANIMATION LOGIC ===== */
+  /* ===== FIREBASE AUTH LISTENER ===== */
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  /* ===== SCROLL HIDE / SHOW HEADER ===== */
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > lastScrollY && window.scrollY > 80) {
-        setShowHeader(false); // scroll down
+        setShowHeader(false);
       } else {
-        setShowHeader(true); // scroll up
+        setShowHeader(true);
       }
       setLastScrollY(window.scrollY);
     };
@@ -32,6 +57,12 @@ export default function Header() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
+
+  /* ===== LOGOUT ===== */
+  const handleLogout = async () => {
+    await signOut(auth);
+    navigate("/login");
+  };
 
   return (
     <AnimatePresence>
@@ -44,13 +75,18 @@ export default function Header() {
           className="bg-white border-b shadow-sm sticky top-0 z-50"
         >
           <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-6">
-            
-            {/* LOGO */}
-            <Link to="/" className="text-2xl font-bold text-indigo-600">
-              MyWebsite
+
+            {/* ================= LOGO ================= */}
+            <Link to="/" className="flex items-center gap-2 -ml-3">
+             <img
+              src={logo}
+              alt="LittleLook Logo"
+              className="h-10 w-auto object-contain"
+             />
             </Link>
 
-            {/* SEARCH DESKTOP */}
+
+            {/* ================= SEARCH (DESKTOP) ================= */}
             <div className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 w-80">
               <input
                 type="text"
@@ -62,7 +98,7 @@ export default function Header() {
               <Search className="w-5 h-5 text-gray-500" />
             </div>
 
-            {/* NAV DESKTOP */}
+            {/* ================= NAV DESKTOP ================= */}
             <nav className="hidden md:flex items-center gap-6 font-medium text-gray-700">
               <Link to="/" className="hover:text-indigo-600">Home</Link>
 
@@ -73,7 +109,8 @@ export default function Header() {
                 onMouseLeave={() => setProductOpen(false)}
               >
                 <button className="flex items-center gap-1 hover:text-indigo-600">
-                  Products <ChevronDown className="w-4 h-4" />
+                  <Link to="/products">Products</Link>
+                  <ChevronDown className="w-4 h-4" />
                 </button>
 
                 <AnimatePresence>
@@ -116,21 +153,32 @@ export default function Header() {
                 )}
               </Link>
 
-              <Link
-                to="/login"
-                className="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-              >
-                Login
-              </Link>
+              {/* LOGIN / LOGOUT */}
+              {user ? (
+                <button
+                  onClick={handleLogout}
+                  className="px-5 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                >
+                  Logout
+                </button>
+              ) : (
+                <Link
+                  to="/login"
+                  className="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                >
+                  Login
+                </Link>
+              )}
             </nav>
 
-            {/* MOBILE MENU BUTTON */}
+            {/* ================= MOBILE MENU BUTTON ================= */}
             <button
               className="md:hidden text-2xl font-bold"
               onClick={() => setMenuOpen(!menuOpen)}
             >
               {menuOpen ? "×" : "☰"}
             </button>
+
           </div>
         </motion.header>
       )}

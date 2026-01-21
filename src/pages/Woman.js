@@ -18,21 +18,17 @@ export default function Women() {
         setProducts(Array.isArray(res.data) ? res.data : []);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error("API Error:", err);
-        setLoading(false);
-      });
+      .catch(() => setLoading(false));
   }, []);
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <h2 className="text-xl font-semibold">Loading...</h2>
+      <div className="flex justify-center items-center min-h-screen">
+        <h2 className="text-lg font-semibold animate-pulse">Loading...</h2>
       </div>
     );
   }
 
-  // ✅ FILTER WOMEN CATEGORY
   const womenProducts = products.filter(
     (item) => item?.category?.toLowerCase() === "women"
   );
@@ -46,71 +42,80 @@ export default function Women() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <h1 className="text-3xl md:text-4xl font-bold mb-12 text-center">
         Women Products
       </h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
         {womenProducts.map((item) => {
           const wished = isInWishlist(item.id);
 
           return (
             <div
               key={item.id}
-              className="border rounded-lg shadow-sm hover:shadow-lg transition bg-white relative"
+              className="group bg-white rounded-2xl border shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden"
             >
-              {/* ❤️ Wishlist */}
-              <button
-                onClick={() =>
-                  wished
-                    ? removeFromWishlist(item.id)
-                    : addToWishlist({
-                        id: item.id,
-                        name: item.productname,
-                        price: Number(item.price),
-                        image: item.productimage,
-                      })
-                }
-                className={`absolute top-2 right-2 p-2 rounded-full transition ${
-                  wished
-                    ? "bg-red-100 text-red-500"
-                    : "bg-white text-gray-400 hover:text-red-400"
-                }`}
-              >
-                <Heart
-                  className={`w-5 h-5 transition ${
-                    wished ? "fill-red-500" : "fill-transparent"
+              {/* IMAGE */}
+              <div className="relative overflow-hidden">
+                {/* Wishlist */}
+                <button
+                  onClick={() =>
+                    wished
+                      ? removeFromWishlist(item.id)
+                      : addToWishlist({
+                          id: item.id,
+                          name: item.productname,
+                          price: Number(item.price),
+                          image: item.productimage,
+                        })
+                  }
+                  className={`absolute top-3 right-3 z-20 p-2 rounded-full transition ${
+                    wished
+                      ? "bg-red-100 text-red-500"
+                      : "bg-white/80 text-gray-500 hover:text-red-500 hover:scale-110"
                   }`}
+                >
+                  <Heart
+                    className={`w-5 h-5 ${
+                      wished ? "fill-red-500" : "fill-transparent"
+                    }`}
+                  />
+                </button>
+
+                <img
+                  src={item.productimage || "https://via.placeholder.com/300"}
+                  alt={item.productname}
+                  className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-              </button>
 
-              <img
-                src={item.productimage || "https://via.placeholder.com/300"}
-                alt={item.productname}
-                className="w-full h-56 object-cover rounded-t-lg"
-              />
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                  <button className="bg-white text-black px-5 py-2 rounded-full text-sm font-semibold hover:bg-blue-600 hover:text-white transition">
+                    View Details
+                  </button>
+                </div>
+              </div>
 
-              <div className="p-4">
-                <h3 className="text-lg font-semibold mb-1">
+              {/* CONTENT */}
+              <div className="p-5 space-y-2">
+                <h3 className="text-lg font-semibold line-clamp-1 hover:text-blue-600 transition">
                   {item.productname}
                 </h3>
 
-                <p className="text-sm text-gray-500 mb-1">
+                <p className="text-sm text-gray-500">
                   ⭐ {item.rating || "No rating"}
                 </p>
 
-                <p className="text-green-600 font-bold text-lg mb-2">
+                <p className="text-blue-600 font-bold text-xl">
                   ₹{item.price}
                 </p>
 
-                <p className="text-sm text-gray-600 mb-4">
-                  {item.productdescription
-                    ? item.productdescription.substring(0, 60)
-                    : "No description available"}
+                <p className="text-sm text-gray-600 line-clamp-2">
+                  {item.productdescription || "No description available"}
                 </p>
 
-                {/* ✅ ADD TO CART BUTTON (BLUE) */}
+                {/* ADD TO CART */}
                 <button
                   onClick={() =>
                     addToCart({
@@ -120,7 +125,7 @@ export default function Women() {
                       image: item.productimage,
                     })
                   }
-                  className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+                  className="w-full mt-4 bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 transition"
                 >
                   Add to Cart
                 </button>

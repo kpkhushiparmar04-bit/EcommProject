@@ -20,6 +20,7 @@ import Registration from "./components/Registration";
 
 import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext";
+import ProductDetail from "./components/ProductDeatils";
 
 export default function App() {
   return (
@@ -30,7 +31,7 @@ export default function App() {
 
           <Routes>
             <Route path="/" element={<Home />} />
-
+<Route path="/product/:id" element={<ProductDetail></ProductDetail>} />
             <Route path="/products" element={<Product />} />
             <Route path="/products/women" element={<Woman />} />
             <Route path="/products/men" element={<Men />} />
